@@ -1,0 +1,117 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <!-- ✅ load jQuery ✅ -->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> -->
+
+    <script src="static/js/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="static/css/ensemble.css">
+    <script src="static/js/common.js"></script>
+</head>
+
+<body>
+    <div id="banner_element"></div>
+    <div id="nav_element"></div>
+    <div class="container-fluid" style="margin-bottom: 100px;">
+        <div>
+            <div class="row d-flex justify-content-center">
+                <h1 class="mb-3">Event Stream</h1>
+            </div>
+            <div class="row d-flex justify-content-center"></div>
+            <h2 id="loadindicator" class="mb-3 text-center">Fetching data...</h2>
+            <div class="table-responsive">
+                <table id="eventTable" class="table">
+                    <thead>
+                        <th scope="col"><b>ID</b></th>
+                        <th scope="col"><b>EVENT TIME</b></th>
+                        <th scope="col"><b>EVENT</b></th>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+
+<script>
+    let firstLoad = true;
+    let rowCache = [];
+    DisableNotificationPolling();
+
+    function generateRow(element, rowClass) {
+        if (rowClass == undefined) {
+            return `<tr id='${element["Id"]}'
+                        style="display:none;">
+                            <td>${element["Id"]}</td>
+                            <td>${element["ReportTime"]}</td>
+                            <td>${element["Event"]}</td>
+                    </tr>`;
+        }
+        else {
+            return `<tr id='${element["Id"]}'
+                        class='${rowClass}'
+                        style='display:none;'>
+                            <td>${element["Id"]}</td>
+                            <td>${element["ReportTime"]}</td>
+                            <td>${element["Event"]}</td>
+                    </tr>`;
+        }
+    }
+
+    function getRow(element) {
+        if (element["EventType"] === 0) {
+            return generateRow(element, "bg-info");
+        }
+        else if (element["EventType"] === 1) {
+            return generateRow(element, "text-light bg-secondary");
+        }
+        else if (element["EventType"] === 2) {
+            return generateRow(element, "bg-warning");
+        }
+        else if (element["EventType"] === 3) {
+            return generateRow(element, "text-light bg-success");
+        }
+        else {
+            return generateRow(element, undefined);
+        }
+    }
+
+    function updateStreamEvents(data) {
+
+        $("#loadindicator").hide();
+
+        data.responseJSON.forEach(element => {
+            existingRow = $(`#${element["Id"]}`);
+
+            if (firstLoad === true) {
+                $("#eventTable").append(getRow(element));
+                $(`#${element["Id"]}`).fadeIn();
+            }
+            else if (existingRow.length === 0) {
+                if ($("#eventTable tr").length >= 100) {
+                    $("tr:last").remove();
+                }
+                $("#eventTable").prepend(getRow(element));
+                $(`#${element["Id"]}`).fadeIn();
+            }
+        });
+        if (firstLoad === true) {
+            firstLoad = false;
+            RegisterApiEndpointPoll("/api/logstream", "GET", updateStreamEvents, 3000);
+        }
+    }
+    MakeApiEndpointRequest("/api/logstream", "GET", updateStreamEvents); //inital request for data
+</script>
+
+</html>

@@ -1,0 +1,202 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/css/ensemble.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <!-- ✅ load jQuery ✅ -->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> -->
+    <script src="static/js/jquery-3.5.1.min.js"></script>
+
+    <script>
+        function SendAgentCommand(cmd) {
+            agentId = $("#agentId")[0].innerText;
+            $.ajax({
+                url: '/agentCommands?agentId=' + agentId + '&cmd=' + cmd,
+                method: 'POST'
+            });
+        }
+    </script>
+    <script src="static/js/common.js"></script>
+</head>
+
+<body>
+    <div id="agentId" style="display:none">{{viewmodel.AgentId}}</div>
+    <div id="banner_element"></div>
+    <div id="nav_element"></div>
+    <div class="container-fluid" style="margin-bottom: 100px;">
+        <div>
+            <div class="row d-flex justify-content-center">
+                <h1 class="mb-3 ">Agent Health {{viewmodel.AgentIpAddress}}</h1>
+            </div>
+            <div>
+                <div class="row d-flex justify-content-center" style="margin-top: 50px; ">
+                    <div class="col-auto">
+                        <button onclick="SendAgentCommand('StopJobs');" class="btn btn-dark"
+                            style="width: 200px; height: 75px;">🛑
+                            Stop Jobs</button>
+                    </div>
+                    <div class="col-auto">
+                        <button onclick="SendAgentCommand('Restart');" class="btn btn-success"
+                            style="width: 200px; height: 75px;">♻
+                            Restart</button>
+                    </div>
+                    <div class="col-auto">
+                        <button onclick="SendAgentCommand('ClearLogs');" class="btn btn-primary"
+                            style="width: 200px; height: 75px;">🗑️ Clear Logs</button>
+                    </div>
+                    <div class="col-auto">
+                        <button onclick="SendAgentCommand('Kill');" class="btn btn-danger"
+                            style="width: 200px; height: 75px;">☠️
+                            Kill</button>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top: 20px;">
+                    <div class="col text-center">
+                        <h4>ID</h4>
+                    </div>
+                    <div class="col text-center">
+                        <h4>Ip Address</h4>
+                    </div>
+                    <div class="col text-center">
+                        <h4>Memory %</h4>
+                    </div>
+                    <div class="col text-center">
+                        <h4>Processor %</h4>
+                    </div>
+                    <div class="col text-center">
+                        <h4>Storage %</h4>
+                    </div>
+                    <div class="col text-center">
+                        <h4>Log Size</h4>
+                    </div>
+                </div>
+                <hr>
+                <div class="row" style="margin-top: 20px;padding-bottom: 50px;">
+                    <div class="col text-center" id="AgentId">
+                    </div>
+                    <div class="col text-center" id="IpAddress">
+                    </div>
+                    <div class="col text-center" id="MemoryUsed">
+                    </div>
+                    <div class="col text-center" id="ProcUsed">
+                    </div>
+                    <div class="col text-center" id="StorageUsed">
+                    </div>
+                    <div class="col text-center" id="LogSize">
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <canvas id="myChart" style="width:100%; height: 300px;"></canvas>
+                </div>
+                <div class="row center-text">
+                    <br>
+                    <span class="header"><button class="btn btn-success"
+                            style="outline: none; box-shadow:none; width: 200px; height: 75px; margin-left: 50px;"
+                            onclick="$('#processList').toggle()">Running Processes</button></span>
+
+                    <br>
+                    <div id="processList" class="collapse" style="margin-left: 50px;">
+                        <pre><code>{{viewmodel.RunningProcesses}}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<div id="jobData" style="display:none;">
+    {{viewmodel.JobData}}
+</div>
+
+<script>
+    let firstLoad = true;
+    function UpdateAgentHealth(data) {
+        $("#loadindicator").hide();
+        let json = data.responseJSON;
+        $("#AgentId").text(json["Id"]);
+        $("#IpAddress").text(json["IpAddress"]);
+        $("#MemoryUsed").text(json["MemPct"] + "%");
+        $("#StorageUsed").text(json["StoragePct"] + "%");
+        $("#ProcUsed").text(json["CpuPct"] + "%");
+        $("#LogSize").text(json["LogSize"] + " kB");
+
+        if (firstLoad === true) {
+            firstLoad = false;
+            RegisterApiEndpointPoll("/api/agent_health?id="+json[Id], "GET", UpdateAgentHealth, 3000);
+        }
+    }
+    MakeApiEndpointRequest("/api/agent_health", "GET", UpdateAgentHealth); //inital request for data
+</script>
+
+<script>
+    function formatDate(date) {
+        var dd = date.getDate();
+        var mm = date.getMonth() + 1;
+        var yyyy = date.getFullYear();
+        if (dd < 10) { dd = '0' + dd }
+        if (mm < 10) { mm = '0' + mm }
+        date = dd + '-' + mm;
+        return date
+    }
+
+    var labels = []
+    var yValues = [];
+
+    var data = eval($("#jobData").text());
+    data.forEach(element => {
+        labels.push(element.Date);
+        yValues.push(element.Count);
+    });
+
+    if (data.length < 5) {
+        var count = 5 - data.length;
+        for (x = 0; x < count; x++) {
+            labels.push(null);
+            yValues.push(null);
+        }
+    }
+
+    var barColors = "green";
+    new Chart("myChart", {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Jobs Per Day",
+                backgroundColor: barColors,
+                backgroundColor: "rgba(0,0,255,0.7)",
+                data: yValues,
+                barThickness: 50,
+                borderWidth: 5,
+                borderRadius: 15
+            }]
+        },
+        options: {
+            legend: { display: false },
+            layout: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</html>

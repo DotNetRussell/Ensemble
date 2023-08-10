@@ -1,0 +1,175 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="static/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <!-- ✅ load jQuery ✅ -->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> -->
+
+    <script src="static/js/jquery-3.5.1.min.js"></script>
+    <script src="static/js/plotly-latest.min.js"></script>
+    <link rel="stylesheet"
+        href="static/css/ol.css">
+    <link rel="stylesheet" href="static/css/ensemble.css">
+    <script src="static/js/common.js"></script>
+</head>
+
+<body>
+    <div id="banner_element"></div>
+    <div id="nav_element"></div>
+    <div class="container-fluid" style="margin-bottom: 100px">
+        <div>
+            <div class="row d-flex justify-content-center">
+                <h1 class="mb3">Workspace : {{currentworkspace}}</h1>
+            </div>
+            <div class="row">
+                <div id="map" class="map"></div>
+            </div>
+            <div id="workspace_modal_element"></div>
+            <div class="row d-flex justify-content-center">
+                <div class="row" style="margin-top: 50px;">
+                    <div class="col" style="margin-left: 50px;">
+                        <h3 class="header">Active Agents</h3>
+                        <div class="label font-weight-normal">{{viewmodel.AgentCount}}</div>
+                        <h3 class="header">Running Jobs</h3>
+                        <div class="label font-weight-normal">{{viewmodel.RunningJobs}}</div>
+
+                        <h3 class="header">Select Workspace</h3>
+                        <select id="workspace-select" class="form-select" style="width: 75%;">
+                            {% for workspace in viewmodel.Workspaces %}
+                            {% if workspace["Workspace"] in viewmodel.CurrentWorkspace["Workspace"] %}
+                            <option id="{{workspace['Id']}}" value="{{workspace['Id']}}" selected>
+                                {{workspace["Workspace"]}}
+                            </option>
+                            {% else %}
+                            <option id="{{workspace['Id']}}" value="{{workspace['Id']}}">
+                                {{workspace["Workspace"]}}
+                            </option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#addworkspaceModal" style="height: 75px; width: 75%; margin-top: 10px;">
+                            ➕ Add New Workspace
+                        </button>
+                    </div>
+                    <div class="col">
+                        <div id="jobGraph" style="width:100%;max-width:350px;min-width: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script src="static/js/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"></script>
+<script src="static/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+
+<!-- Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer -->
+<script src="static/js/elm-pep.js"></script>
+<!-- The lines below are only needed for old environments like Internet Explorer and Android 4.x -->
+<script
+    src="static/js/polyfill.min.js?features=fetch,requestAnimationFrame,Element.prototype.classList,TextDecoder"></script>
+<script src="static/js/minified.js"></script>
+<script src="static/js/ol.js"></script>
+
+<script>
+
+    var partitionColors = ["blue", "orange", "green"];
+    var xArray = ["Jobs Running", "Jobs Pending", "Jobs Completed"];
+    var yArray = [{{ viewmodel.RunningJobs }}, {{ viewmodel.PendingJobs }}, {{ viewmodel.CompletedJobs }}];
+
+    var layout = { title: "Workspace Job Stats", showlegend: false };
+
+    var data = [
+        {
+            labels: xArray,
+            values: yArray,
+            hole: .4,
+            type: "pie",
+            marker: {
+                colors: partitionColors
+            },
+            textinfo: "label+percent",
+            textposition: "outside",
+            automargin: true
+        }
+    ];
+
+    Plotly.newPlot("jobGraph", data, layout);
+</script>
+<div style="display: none;" id="agentData">{{ viewmodel.Agents }}</div>
+<script type="text/javascript">
+    var agents = eval($("#agentData").text());
+    var agentLocationData = [];
+    var map = new ol.Map({
+        target: 'map',
+        layers: [
+            new ol.layer.Tile({
+                source: new ol.source.OSM({
+                    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'
+                })
+            })
+        ],
+        view: new ol.View({
+            center: ol.proj.fromLonLat([39.411234, 20.821234]),
+            zoom: 2.5,
+            multiWorld: true
+        })
+    });
+
+    agents.forEach(element => {
+
+        var ip = element.IpAddress;
+        $.ajax({
+            url: 'https://ipapi.co/' + ip + '/json/',
+            method: 'GET',
+            success: function (res, textStatus, data) {
+                var data = JSON.parse(data.responseText);
+
+                var marker = new ol.Feature({
+                    geometry: new ol.geom.Point(
+                        ol.proj.fromLonLat([data.longitude, data.latitude])
+                    ),
+                });
+
+                marker.setStyle(new ol.style.Style({
+                    image: new ol.style.Icon(({
+                        color: '#003BF5',
+                        crossOrigin: 'anonymous',
+                        src: 'https://openlayers.org/en/v7.0.0/examples/data/dot.png'
+                    }))
+                }));
+
+                var vectorSource = new ol.source.Vector({
+                    features: [marker]
+                });
+
+                var markerVectorLayer = new ol.layer.Vector({
+                    source: vectorSource,
+                });
+                map.addLayer(markerVectorLayer);
+            }
+        });
+    });
+</script>
+<script>
+    $('#workspace-select').on('change', function () {
+        $.ajax({
+            url: '/dashboard?setWorkspace=' + this.value,
+            method: 'GET',
+            success: function (res, textStatus, data) {
+                window.location.href = "/";
+            }
+        })
+    });
+</script>
+
+</html>

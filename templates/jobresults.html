@@ -1,0 +1,186 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <!-- ✅ load jQuery ✅ -->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> -->
+    <script src="static/js/jquery-3.5.1.min.js"></script>
+
+    <link rel="stylesheet" href="static/css/ensemble.css">
+    <script src="static/js/common.js"></script>
+</head>
+
+<body>
+    <div id="banner_element"></div>
+    <div id="nav_element"></div>
+    <div class="container-fluid" style="margin-bottom: 100px;">
+        <div>
+            <div class="row d-flex justify-content-center">
+                <h1 class="mb-3">Job Results</h1>
+            </div>
+            <div class="row d-flex justify-content-center">
+                <code class="h5">{{ viewmodel.JobData[0].Command }}</code>
+            </div>
+            <div class="table-responsive">
+
+                <table class="table">
+                    <tr>
+                        <td>
+                            <div>
+                                <span class="header">Job ID:</span>
+                                <div>{{ viewmodel.JobData[0].JobId }}</div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <span class="header">Target:</span>
+                                <div>{{ viewmodel.JobData[0].Target }}</div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% if (viewmodel|length) > 0 %}
+                    {% for job in viewmodel.JobData %}
+                    <tr>
+                        <td>
+                            <div>
+                                <span class="header">Agent ID:</span>
+                                <span>{{ job.AgentId }}</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <span class="header">Start Time:</span>
+                                <div>{{ job.StartTime }}</div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <span class="header">End Time:</span>
+                                <span>
+                                    {% if job.EndTime != None %}
+                                    <div class="alert alert-success">{{ job.EndTime }}</div>
+                                    {% else %}
+                                    <div class="alert alert-warning">Pending</div>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <span class="header">Canceled:</span>
+                                <span>{{ job.WasCanceled }}</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- <tr>
+                        <td>
+                            <span class="header">Result Extracted Targets</span>
+                            <button class="btn btn-primary" onclick="selectUnselectedTargets()">Select All Unselected</button>
+                            <button class="btn btn-danger" onclick="clearUnselectedTargets()">Ignore All Unselected</button>
+                            <ul class="d-flex flex-column flex-wrap list-unstyled" style="max-height: 400px; width: 500px;">
+
+                                {% for target in job.Targets %}
+
+                                    {% if target.AlreadyInDb == True %}
+
+                                    <div class="bg-success d-flex selected-target"
+                                        style="margin: 5px; max-width: 400px; display: inline-block;"
+                                        id="target_{{ target.Id }}">
+
+                                    {% else %}
+                                    <div target-id="{{ target.Id }}" class="unselected-target" hidden>{{ target.Target }}</div>
+                                    <div class="bg-info d-flex"
+                                        style="margin: 5px; max-width: 400px; text-overflow: ellipsis; display: inline-block;"
+                                        id="target_{{ target.Id }}">
+
+                                    {% endif %}
+                                        <button class="btn me-auto" type="button" style="width: 350;"
+                                            onclick="addTarget('{{ target.Target }}', {{ target.Id }});"><label style="inline-size: 350px; overflow:hidden;">{{ target.Target }}</label></button>
+                                        <button onclick="removeTarget('{{ target.Target }}', {{ target.Id }});" type="button" class="btn-close p-2" data-bs-dismiss="toast"
+                                            aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr> -->
+                    <tr>
+                        <td style="padding-top: 20px; padding-bottom: 50px;">
+                            <span class="header"><button class="btn btn-info" style="outline: none; box-shadow:none;"
+                                    onclick="$('#jobResult{{ job.AgentId }}').toggle()">Job Results</button></span>
+                            <br>
+                            {% if (viewmodel.JobData|length) == 1 %}
+                            <div aria-labelledby="jobResult{{ job.AgentId }}" id="jobResult{{ job.AgentId }}">
+                                {% endif %}
+
+                                {% if (viewmodel.JobData|length) > 1 %}
+                                <div class="collapse" aria-labelledby="jobResult{{ job.AgentId }}"
+                                    id="jobResult{{ job.AgentId }}">
+                                    {% endif %}
+                                    <pre><code id="jobResultData">{{ job.JobResult }}</code></pre>
+                                    <script>
+                                        function addTarget(target, id) {
+                                            MakeApiEndpointRequest(`/api/addTarget?target=${target}`, "GET", () => {
+                                                $(`#target_${id}`).removeClass('bg-info');
+                                                $(`#target_${id}`).addClass('bg-success');
+                                            });
+                                        }
+                                        function removeTarget(target, id){
+                                            MakeApiEndpointRequest(`/api/removeTarget?target=${target}`, "GET", () => {
+                                                $(`#target_${id}`).remove();
+                                            });
+                                        }
+                                        function selectUnselectedTargets(){
+                                            let targets = new Array();
+                                            $("div .unselected-target").each((i,e) =>{
+                                                targets.push($(e).text());
+                                            });
+                                            MakeApiJsonPostRequest(`/api/addTarget`, () => {
+                                                $(".unselected-target").each((i,e)=>{
+                                                    $(`#target_${$(e).attr("target-id")}`).removeClass('bg-info');
+                                                    $(`#target_${$(e).attr("target-id")}`).addClass('bg-success');
+                                                });
+                                            }, JSON.stringify(targets));
+                                        }
+                                        function clearUnselectedTargets(){
+                                            let targets = new Array();
+                                            $("div .unselected-target").each((i,e) =>{
+                                                targets.push($(e).text());
+                                            });
+                                            MakeApiJsonPostRequest(`/api/removeTarget`, () => {
+                                                $(".unselected-target").each((i,e)=>{
+                                                    $(`#target_${$(e).attr("target-id")}`).remove();
+                                                });
+                                            }, JSON.stringify(targets));
+                                        }
+                                    </script>
+                                </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+
+</html>

@@ -1,0 +1,189 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+        integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- ✅ load jQuery ✅ -->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> -->
+
+    <script src="static/js/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="static/css/ensemble.css">
+    <script src="static/js/common.js"></script>
+</head>
+
+<body>
+    <div id="banner_element"></div>
+    <div id="nav_element"></div>
+    <div class="container-fluid" style="margin-bottom: 100px;">
+        <div>
+            <div class="row d-flex justify-content-center">
+                <h1 class="mb-3">Settings</h1>
+            </div>
+
+            <!-- <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#userSettings" type="button" role="tab" aria-controls="settings" aria-selected="true">User Settings</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="templates-tab" data-bs-toggle="tab" data-bs-target="#commandTemplates" type="button" role="tab" aria-controls="templates" aria-selected="false">Command Templates</button>
+                </li>
+            </ul> -->
+
+            <div class="tab-content"></div>
+                <div class="tab-pane" id="userSettings" role="tabpanel" aria-labelledby="settings-tab">
+                    <h3 class="mb-3">User settings</h3>
+                    <label class="alert alert-danger" style="width: 100%">
+                        <b>Connection String:</b>
+                        &nbsp;DO NOT SHARE
+                        <br>
+                        ./ensemble_agent --connection-string '{{viewmodel.ConnectionString}}'
+                        </b>
+                    </label>
+                    <table class="table">
+                        <tr>
+                            <td>
+                                <div class="header" style="margin-top: 20px;">
+                                    Username:
+                                </div>
+                            </td>
+                            <td>
+                                <input style="margin-top: 20px; width: 50%;" class="input" type="text"
+                                    value="{{viewmodel.Username}}" disabled>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="header" style="margin-top: 20px;">
+                                    Password
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="header">Old</div>
+                            </td>
+                            <td>
+                                <input class="input" style="width: 50%;" type="password" id="oldPassword">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="header">New</div>
+                            </td>
+                            <td>
+                                <input class="input" style="width: 50%;" type="password" id="newPassword">
+                            </td>
+                        </tr>
+                    </table>            
+
+                <button onclick="save()" class="btn btn-success"
+                style="width: 100%; ">Save Settings</button>
+                </div>
+                <br>
+                <hr>
+                <br>
+                <div class="tab-pane active" id="commandTemplates" role="tabpanel" aria-labelledby="templates-tab">
+                    <h2>Command Templates</h2>
+                   
+                    <table class="table" id="templates" style="border: 1px; box-shadow: inset;">
+                        <tr>
+                            <th scope="col">Description</th>
+                            <th scope="col">Command</th>
+                          </tr>
+                    </table>
+
+                    <table class="table">
+                        <tr>
+                            <td><h2>Add new command template</h2></td>
+                        </tr>
+
+                        <tr>
+                            <td style="width: 10%;">
+                                <div class="header" style="margin-top: 20px;">
+                                    Description:
+                                </div>
+                            </td>
+                            <td>
+                                <input id="commandDescriptionInput" style="margin-top: 20px; width: 100%;" class="input" type="text">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 10%;">
+                                <div class="header" style="margin-top: 20px;">
+                                    Command:
+                                </div>
+                            </td>
+                            <td>
+                                <input id="commandInput" style="margin-top: 20px; width: 100%;" class="input" type="text">
+                            </td>
+                        </tr>
+                        
+                    </table>
+                    <button class="btn btn-info" style="width: 100%;" onclick="AddCommandTemplate();">Add</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+
+    <script>
+        function save() {            
+            MakeApiJsonPostRequest(`/api/updatePassword`, 
+            () => { location.href = '/logout' }, 
+            JSON.stringify({old:$("#oldPassword").val(),new:$("#newPassword").val()}),
+            () => { $("#notification-container").append(GetWarningAlert(1, "Incorrect Password"));
+                    $(`#toast_1`).toast('show');});        
+            
+        } 
+        function AddCommandTemplate(){
+            let description = $("#commandDescriptionInput").val();
+            let command = $("#commandInput").val();
+
+            MakeApiJsonPostRequest(`/api/addCommandTemplates`, 
+            () => { location.href = '/settings' }, 
+            JSON.stringify({commandDescription:description,command:command}),
+            () => { $("#notification-container").append(GetWarningAlert(1, "Failed to add command"));
+                    $(`#toast_1`).toast('show');}); 
+
+        }
+
+        function DeleteTemplate(id){
+
+            $.ajax({
+            url: `/api/deleteCommandTemplates?id=${id}`,
+            method: 'GET',
+            success: function (res, textStatus, data) {
+                window.location.href = "/settings";
+            }
+            });
+        }
+
+        function getCommandTemplates(data){
+
+            data.responseJSON.forEach(element => {
+                $("#templates").append(
+                   `<tr id='${element["Id"]}'>
+                    <td>${element["CommandName"]}</td>
+                    <td><code>${element["Command"]}</code></td>
+                    <td><button style="border:none;" title="Delete" onclick="DeleteTemplate('${element["Id"]}')"><i class="fa fa-trash"></i></button></td>
+                    </tr>`);
+            });
+        }
+
+        MakeApiEndpointRequest("/api/getCommandTemplates", "GET", getCommandTemplates); //inital request for data
+
+    </script>
+</html>

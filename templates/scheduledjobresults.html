@@ -1,0 +1,85 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <!-- ✅ load jQuery ✅ -->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> -->
+    <script src="static/js/jquery-3.5.1.min.js"></script>
+
+    <link rel="stylesheet" href="static/css/ensemble.css">
+    <script src="static/js/common.js"></script>
+</head>
+
+<body>
+    <div id="banner_element"></div>
+    <div id="nav_element"></div>
+    <div class="container-fluid" style="margin-bottom: 100px;">
+        <div>
+            <div class="row d-flex justify-content-center">
+                <h1 class="mb-3">Scheduled Job Results</h1>
+            </div>
+            <div class="row d-flex justify-content-center">
+            </div>
+            <div class="table-responsive">
+
+                <table class="table">
+                    <tr>
+                        <td>
+                            <div>
+                                <span class="header">Scheduled Job Id:</span>
+                                <div>{{ viewmodel[0].ScheduledJobId }}</div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% if (viewmodel|length) > 0 %}
+                    {% for job in viewmodel %}
+                    <tr>
+                        <td>
+                            <div>
+                                <span class="header">Agent ID:</span>
+                                <span>{{ job.AgentId }}</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <span class="header">Job ID:</span>
+                                <div>{{ job.JobId }}</div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div>
+                                <span class="header">Run Time:</span>
+                                <div>{{ job.JobRunDate }}</div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding-top: 20px; padding-bottom: 50px;">
+                            <pre><code id="jobResultData">{{ job.JobDiff }}</code></pre>                                 
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+    integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+
+</html>

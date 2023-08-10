@@ -1,0 +1,6 @@
+Flask
+cryptography==2.5
+psutil
+python-crontab
+waitress
+

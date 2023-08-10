@@ -1,0 +1,15 @@
+.logs/
+.temp/
+.jobResults/
+.conf/
+.vscode/
+__pycache__
+
+.config.json
+.ensemble_database.sqlite3
+
+cert.pem
+key.pem
+
+cleardata
+
