@@ -3,7 +3,7 @@
 </p>
 
 # Ensemble
-A Bug Bounty Platform that allows hunters to issue commands over a geo-distributed cluster. The ideal user is someone who is attempting to scan multiple bug bounty programs simultaneously, on a reoccurring basis
+A Bug Bounty Platform that allows hunters to issue commands over a geo-distributed cluster. The ideal user is someone who is attempting to scan multiple bug bounty programs simultaneously, on a recurring basis
 
 ## Usage
 
@@ -114,7 +114,7 @@ cd Ensemble;
 #### Create New Job Page
 ![Alt text](https://i.imgur.com/XE8edSy.png)
 
-- Create new job page allows users to create new jobs to run instantly, run on a reoccurring basis, or schedule the job to run at a specific date and time
+- Create new job page allows users to create new jobs to run instantly, run on a recurring basis, or schedule the job to run at a specific date and time
 - Running a load balanced command is best used when you expect the results will be the same regardless what region you run the command in. This will take your command and distribute it across the cluster evenly based on how many targets you have. For example, if you have 4 nodes, and only one target defined, it will issue the job only to the first node. If you have 4 nodes and two targets defined, then it'll issue one target to the first node and one target to the second node.
 - Not running a command with the load balanced flag on means that your command and all targets will be issued to every node equally. For example, if you have 4 nodes, and one target. Then each node will run the same command against that one target.
 - Run as a single command will run identical to what is described previously except that it will dump all targets into a temporary file, then put the file into the command where you defined {{target}}
