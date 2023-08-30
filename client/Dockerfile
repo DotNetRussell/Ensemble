@@ -1,15 +1,7 @@
 FROM kalilinux/kali-last-release
 
 # Install packages
-# RUN apt-get update && apt-get upgrade -y && apt-get install -y \
-#     apt-transport-https \
-#     #kali-linux-headless \
-#     python3 \
-#     python3-pip \
-#     procps
-
-
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     apt-transport-https \
     #kali-linux-headless \
     python3 \
@@ -53,5 +45,5 @@ ENV ENCRYPTION_KEY=$ENCRYPTION_KEY HOST=$HOST PORT=$PORT
 #ENTRYPOINT echo "{\"ENCRYPTION_KEY\":\"$ENCRYPTION_KEY\", \"HOST\": \"$HOST\", \"PORT\":\"$PORT\"}"
 
 # Can split to separate arguments instead of connection string.
-RUN python3 ensemble_agent.py --connection-string "{\"ENCRYPTION_KEY\":\"$ENCRYPTION_KEY\", \"HOST\": \"$HOST\", \"PORT\":\"$PORT\"}"
+ENTRYPOINT python3 ensemble_agent.py --connection-string "{\"ENCRYPTION_KEY\":\"$ENCRYPTION_KEY\", \"HOST\": \"$HOST\", \"PORT\":\"$PORT\"}"
 
