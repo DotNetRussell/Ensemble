@@ -1,13 +1,24 @@
 FROM kalilinux/kali-last-release
 
 # Install packages
-RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+# RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+#     apt-transport-https \
+#     #kali-linux-headless \
+#     python3 \
+#     python3-pip \
+#     procps
+
+
+RUN apt-get update && apt-get install -y \
     apt-transport-https \
-    kali-linux-headless \
+    #kali-linux-headless \
     python3 \
     python3-pip \
     procps
 
+
+# May be need to be explicitly trusted depending on corporate firewall.
+ARG TRUSTED_PYPI_HOSTS="--trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org"
 
 WORKDIR /root
 
@@ -15,27 +26,32 @@ CMD mkdir Ensemble
 
 WORKDIR /root/Ensemble
 
-COPY ../requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+COPY requirements.txt .
+RUN pip3 install ${TRUSTED_PYPI_HOSTS} -r requirements.txt
+# RUN python3 -m pip install ${TRUSTED_PYPI_HOSTS} --upgrade pip \
+#     && pip install ${TRUSTED_PYPI_HOSTS} -r requirements.txt
 
-COPY ensemble_agent.py ensemble_agent.py
+
+COPY /client/ensemble_agent.py .
 RUN chmod +x ensemble_agent.py
 
 #RUN ["chmod", "+x", "/root/Ensemble/ensemble_agent.py"]
 
-
-COPY common/communication.py communication.py
-COPY common/encryption.py encryption.py
-COPY common/ensemble_logging.py ensemble_logging.py
-COPY common/ensemble_constants.py ensemble_constants.py
-
-
-# Must pass in the ENSEMBLE_ENCRYPTION_KEY via build-arg (--build-arg ENSEMBLE_ENCRYPTION_KEY=your_key)
-ARG ENSEMBLE_ENCRYPTION_KEY HOST PORT
-ENV ENSEMBLE_ENCRYPTION_KEY=$ENSEMBLE_ENCRYPTION_KEY HOST=$HOST PORT=$PORT
+COPY /common/communication.py .
+COPY /common/encryption.py .
+COPY /common/ensemble_logging.py .
+COPY /common/ensemble_constants.py .
 
 
-RUN echo '{"ENCRYPTION_KEY":"${ENSEMBLE_ENCRYPTION_KEY}", "HOST":"${HOST}", "PORT":"${PORT}"}'
+# Must pass in the ENCRYPTION_KEY via build-arg (--build-arg ENCRYPTION_KEY=your_key --build-arg HOST=your_host --build-arg PORT=your_port)
+ARG ENCRYPTION_KEY HOST PORT
+ENV ENCRYPTION_KEY=$ENCRYPTION_KEY HOST=$HOST PORT=$PORT
 
-#RUN /root/Ensemble/ensemble_agent.py --connection-string '{"ENCRYPTION_KEY":"${ENSEMBLE_ENCRYPTION_KEY}", "HOST":"${HOST}", "PORT":"${PORT}"}'
+
+# For Debugging.
+#RUN echo "{\"ENCRYPTION_KEY\":\"$ENCRYPTION_KEY\", \"HOST\": \"$HOST\", \"PORT\":\"$PORT\"}"
+#ENTRYPOINT echo "{\"ENCRYPTION_KEY\":\"$ENCRYPTION_KEY\", \"HOST\": \"$HOST\", \"PORT\":\"$PORT\"}"
+
+# Can split to separate arguments instead of connection string.
+RUN python3 ensemble_agent.py --connection-string "{\"ENCRYPTION_KEY\":\"$ENCRYPTION_KEY\", \"HOST\": \"$HOST\", \"PORT\":\"$PORT\"}"
 

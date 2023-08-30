@@ -41,7 +41,7 @@ python3 -m pip install -r requirements.txt
 Ensemble Director is the master node of your cluster. It will not only be the web portal that you connect to and control your cluster with but it will also be the node that all other nodes in the cluster communicate with.
 
 To start a director once fully installed, run the following command
-`./ensemble_director --config-file <see-sample-confilg>` 
+`./ensemble_director.py --config-file <see-sample-config>` 
 
 Next, visit the IP of your director on port 5000 and create your admin account. 
 _DO THIS IMMEDIATELY AFTER STARTING THE DIRECTOR_  
@@ -63,7 +63,7 @@ apt install python3-psutil;
 git clone https://github.com/DotNetRussell/Ensemble.git;
 cd Ensemble;
 
-./ensemble_agent --connection-string '{"HOST":"<your host ip>","PORT":"5680","ENCRYPTION_KEY":"<your symmetric key>"}'
+./ensemble_agent.py --connection-string '{"HOST":"<your_server_ip>","PORT":"5680","ENCRYPTION_KEY":"<your_symmetric_key>"}'
 
 ```
 
@@ -71,6 +71,38 @@ cd Ensemble;
 *NOTE* As soon as your agent is running, it will appear on your director web portal. 
 
 --- 
+
+### Docker
+
+All commands should be run from the root of the repository.
+Build the client image:
+```sh
+docker build -f .\client\Dockerfile --build-arg ENCRYPTION_KEY=your_key --build-arg HOST=your_server_ip --build-arg PORT=5680 -t ensemble_client:latest . 
+```
+
+Build the server image:
+```sh
+docker build -f .\server\Dockerfile -t ensemble_server:latest .
+```
+
+Docker compose to create containers from images:
+```sh
+docker compose up
+```
+
+Docker tear down:
+```sh
+docker compose down
+```
+
+
+#### Cleanup
+```sh
+docker image rmi ensemble_client
+docker image rmi ensemble_server
+docker system prune
+```
+
 
 ### Navigating the Application
 
@@ -108,8 +140,8 @@ cd Ensemble;
 #### Scheduled Jobs Page
 ![Alt text](https://i.imgur.com/Wa5Nhrb.png)
 
-- The scheduled jobs page shows you the jobs that have been scheduled to run both recurringly as well as at a specific date and time.
-- Jobs that run recurringly daily/weekly/monthly, will appear under the completed scheduled jobs section and you'll be able to diff the results between runs. This is nice for finding changes in a attack surface over time.
+- The scheduled jobs page shows you the jobs that have been scheduled to run.
+- Jobs that run on recurring schedule daily/weekly/monthly, will appear under the completed scheduled jobs section and you'll be able to diff the results between runs. This is nice for finding changes in a attack surface over time.
 
 #### Create New Job Page
 ![Alt text](https://i.imgur.com/XE8edSy.png)
