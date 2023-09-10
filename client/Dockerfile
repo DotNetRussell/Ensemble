@@ -9,7 +9,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     procps
 
 
-# May be need to be explicitly trusted depending on corporate firewall.
+# May be need to be explicitly trusted depending on corporate proxy.
 ARG TRUSTED_PYPI_HOSTS="--trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org"
 
 WORKDIR /root
@@ -19,20 +19,19 @@ CMD mkdir Ensemble
 WORKDIR /root/Ensemble
 
 COPY requirements.txt .
-RUN pip3 install ${TRUSTED_PYPI_HOSTS} -r requirements.txt
-# RUN python3 -m pip install ${TRUSTED_PYPI_HOSTS} --upgrade pip \
-#     && pip install ${TRUSTED_PYPI_HOSTS} -r requirements.txt
-
+COPY /common/communication.py .
+COPY /common/encryption.py .
+COPY /common/ensemble_constants.py .
+COPY /common/ensemble_logging.py .
 
 COPY /client/ensemble_agent.py .
 RUN chmod +x ensemble_agent.py
-
 #RUN ["chmod", "+x", "/root/Ensemble/ensemble_agent.py"]
 
-COPY /common/communication.py .
-COPY /common/encryption.py .
-COPY /common/ensemble_logging.py .
-COPY /common/ensemble_constants.py .
+
+RUN pip3 install ${TRUSTED_PYPI_HOSTS} -r requirements.txt
+# RUN python3 -m pip install ${TRUSTED_PYPI_HOSTS} --upgrade pip \
+#     && pip install ${TRUSTED_PYPI_HOSTS} -r requirements.txt
 
 
 # Must pass in the ENCRYPTION_KEY via build-arg (--build-arg ENCRYPTION_KEY=your_key --build-arg HOST=your_host --build-arg PORT=your_port)

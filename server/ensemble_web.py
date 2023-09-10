@@ -35,7 +35,7 @@ def check_logged_in():
 @app.route("/", methods=[ensemble_constants.GET, ensemble_constants.POST])
 def home():
     if request.method == ensemble_constants.GET:
-        if (check_logged_in()):
+        if check_logged_in():
             return redirect(ensemble_constants.DASHBOARD_PATH)
         elif (useraccess.admin_user_exists() == True):
             return render_template(ensemble_constants.LOGIN_PAGE, version=currentversion)
@@ -420,6 +420,10 @@ print(args)
 
 ensemble_logging.initialize(ensemble_constants.WEB_LOG_FILENAME)
 ensemble_logging.logLevel = 1
+
+print("here", os.getcwd())
+
+
 APP_CONFIG = json.loads(open("./.config.json", "r").read())
 
 if (os.path.exists(ensemble_constants.WEB_LOGS_DIR) == False):

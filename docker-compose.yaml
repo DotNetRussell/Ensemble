@@ -9,8 +9,8 @@ networks:
 services:
     client:
         build: 
-            dockerfile: ./Dockerfile
-            context: ./client 
+            dockerfile: ./client/Dockerfile
+            context: . # Has to be from root and not ./client due to requirements.txt
         container_name: ensemble_client
         volumes:
             - .:/shared
@@ -29,8 +29,8 @@ services:
         
     server: 
         build: 
-            dockerfile: ./Dockerfile
-            context: ./server
+            dockerfile: ./server/Dockerfile
+            context: . # Has to be from root and not ./server due to requirements.txt
         container_name: ensemble_server
         volumes:
             - .:/shared

@@ -1,6 +1,5 @@
-Flask
-cryptography
-psutil
-python-crontab
-waitress
-
+cryptography==41.0.3
+Flask==2.3.3
+python-crontab==3.0.0
+waitress==2.1.2
+psutil==5.9.5
