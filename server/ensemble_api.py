@@ -3,9 +3,9 @@
 import time
 import json
 import base64
-import useraccess
-import ensemble_enums
-import database_access
+import server.useraccess as useraccess
+import common.ensemble_enums as ensemble_enums
+import common.database_access as database_access
 import ensemble_logging
 import ensemble_constants
 

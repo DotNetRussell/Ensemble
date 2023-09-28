@@ -1,0 +1,12 @@
+.git
+.idea
+.venv
+.pytest_cache
+.vscode
+.coverage
+.env
+CODEOWNERS
+Dockerfile
+mypy.ini
+README.md
+*.log

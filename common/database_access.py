@@ -4,7 +4,7 @@ from dateutil import parser
 import sqlite3
 import json
 import ensemble_logging
-import database_constants
+import common.database_constants as database_constants
 
 
 def initialize():

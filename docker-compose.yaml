@@ -1,0 +1,47 @@
+version: '3.8'
+
+networks:
+  frontend:
+    ipam:
+      config:
+        - subnet: 172.24.0.0/24
+        
+services:
+    client:
+        build: 
+            dockerfile: ./client/Dockerfile
+            context: . # Has to be from root and not ./client due to requirements.txt
+        container_name: ensemble_client
+        volumes:
+            - .:/shared
+        networks:
+            frontend:
+                ipv4_address: 172.24.0.2
+        ports:
+            - "5000:5000"
+            - "80:8080"
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.5'
+                    memory: 128M
+        tty: true # Start and keep container runing
+        
+    server: 
+        build: 
+            dockerfile: ./server/Dockerfile
+            context: . # Has to be from root and not ./server due to requirements.txt
+        container_name: ensemble_server
+        volumes:
+            - .:/shared
+        networks:
+            frontend:
+                ipv4_address: 172.24.0.3
+        ports:
+            - "5000:5000"
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.5'
+                    memory: 128M
+        tty: true

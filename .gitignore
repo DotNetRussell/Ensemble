@@ -3,6 +3,7 @@
 .jobResults/
 .conf/
 .vscode/
+.venv/
 __pycache__
 
 .config.json
