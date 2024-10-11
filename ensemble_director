@@ -62,12 +62,13 @@ def initialize():
 		#generate cert and key for web portal:
 		run_command(ensemble_constants.OPENSSL_GENERATE_CERT_AND_KEY_COMMAND)
 
-	if(ensemble_logging.logLevel == 1):
-		ensemble_logging.log_message("Starting Ensemble Web Server")
-		threading.Thread(target=run_command,args=(f"./{ensemble_constants.ENSEMBLE_WEB_FILE}",)).start()
-	else:
-		ensemble_logging.log_message("Starting Ensemble Web Server with Debugging Enabled")
-		threading.Thread(target=run_command,args=(f"./{ensemble_constants.ENSEMBLE_WEB_FILE} --debug",)).start()
+	# if(ensemble_logging.logLevel == 1):
+	# 	ensemble_logging.log_message("Starting Ensemble Web Server")
+	# 	threading.Thread(target=run_command,args=(f"./{ensemble_constants.ENSEMBLE_WEB_FILE}",)).start()
+	# else:
+	# 	ensemble_logging.log_message("Starting Ensemble Web Server with Debugging Enabled")
+	# 	threading.Thread(target=run_command, args=(f"./{ensemble_constants.ENSEMBLE_WEB_FILE} --debug",), daemon=True).start()
+
 
 	ensemble_logging.log_message("PEMs created")
 	ensemble_logging.log_message("Importing config file")
