@@ -227,8 +227,8 @@ def check_job_status():
 	except Exception as error:
 			ensemble_logging.log_message(f"Error while checking job status {error}")
 			database_access.add_message({"MessageType":ensemble_enums.MessageType.WARNING.value, "Message": f"Job Failed for Job ID:{jobId}"})
-			runningJobs.remove(runningJob)
-			retry_job(agentIp, jobId)
+			#runningJobs.remove(runningJob)
+			#retry_job(agentIp, jobId)
 	finally:
 		threading.Timer(5.0,check_job_status).start()
 

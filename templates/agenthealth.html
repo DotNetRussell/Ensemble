@@ -140,7 +140,7 @@
             RegisterApiEndpointPoll("/api/agent_health?id="+json[Id], "GET", UpdateAgentHealth, 3000);
         }
     }
-    MakeApiEndpointRequest("/api/agent_health", "GET", UpdateAgentHealth); //inital request for data
+    MakeApiEndpointRequest("/api/agent_health?id="+$("#agentId")[0].innerText, "GET", UpdateAgentHealth); //inital request for data
 </script>
 
 <script>
