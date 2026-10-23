@@ -1,0 +1,35 @@
+name: SquidGate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, master]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  squidgate:
+    runs-on: ubuntu-latest
+    env:
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: SquidGate
+        if: env.LLM_API_KEY != ''
+        uses: SquidSec/SquidGate@v1
+        with:
+          llm-api-key: ${{ env.LLM_API_KEY }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          llm-provider: opencode-go
+          llm-model: deepseek-v4.1-flash
+
+      - name: SquidGate not configured
+        if: env.LLM_API_KEY == ''
+        run: |
+          echo "::notice title=SquidGate::Add the LLM_API_KEY secret (OpenCode Go key) to enable the PR security gate."
